@@ -1,0 +1,337 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        $tableNames = config('laraflow.table_names', []);
+
+        $workflowTemplates = $tableNames['workflow_templates'] ?? 'workflow_templates';
+        $workflowTemplateSteps = $tableNames['workflow_template_steps'] ?? 'workflow_template_steps';
+        $workflowTemplateStepAssignments = $tableNames['workflow_template_step_assignments'] ?? 'workflow_template_step_assignments';
+        $workflowTemplateStepActions = $tableNames['workflow_template_step_actions'] ?? 'workflow_template_step_actions';
+
+        $workflowInstances = $tableNames['workflow_instances'] ?? 'workflow_instances';
+        $workflowInstanceSteps = $tableNames['workflow_instance_steps'] ?? 'workflow_instance_steps';
+        $workflowInstanceStepAssignments = $tableNames['workflow_instance_step_assignments'] ?? 'workflow_instance_step_assignments';
+        $workflowInstanceTransitions = $tableNames['workflow_instance_transitions'] ?? 'workflow_instance_transitions';
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW TEMPLATES
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowTemplates, function (Blueprint $table): void {
+            $table->id();
+            $table->string('template_code')->unique();
+            $table->string('template_name');
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('template_code');
+            $table->index('is_active');
+        });
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW TEMPLATE STEPS
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowTemplateSteps, function (Blueprint $table) use ($workflowTemplates): void {
+            $table->id();
+
+            $table->foreignId('workflow_template_id')
+                ->constrained($workflowTemplates)
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->string('step_code');
+            $table->string('step_name');
+            $table->text('step_description')->nullable();
+            $table->unsignedInteger('sequence_no');
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(['workflow_template_id', 'step_code'], 'wf_template_steps_template_step_code_unique');
+            $table->unique(['workflow_template_id', 'sequence_no'], 'wf_template_steps_template_sequence_unique');
+
+            $table->index('is_active');
+        });
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW TEMPLATE STEP ASSIGNEES
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowTemplateStepAssignments, function (Blueprint $table) use ($workflowTemplateSteps): void {
+            $table->id();
+
+            $table->foreignId('workflow_template_step_id')
+                ->constrained($workflowTemplateSteps)
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->unsignedBigInteger('role_id');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(
+                ['workflow_template_step_id', 'role_id'],
+                'wf_template_step_assignees_step_role_unique'
+            );
+
+            $table->index('role_id');
+        });
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW TEMPLATE STEP ACTIONS
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowTemplateStepActions, function (Blueprint $table) use ($workflowTemplateSteps): void {
+            $table->id();
+
+            $table->foreignId('workflow_template_step_id')
+                ->constrained($workflowTemplateSteps)
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->unsignedBigInteger('action_id');
+            $table->unsignedBigInteger('next_workflow_template_step_id')->nullable();
+
+            $table->boolean('completes_step')->default(false);
+            $table->unsignedBigInteger('resulting_step_status_id')->nullable();
+            $table->unsignedBigInteger('resulting_application_status_id')->nullable();
+            $table->boolean('closes_application')->default(false);
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(
+                ['workflow_template_step_id', 'action_id'],
+                'wf_template_step_actions_step_action_unique'
+            );
+
+            $table->index('action_id');
+            $table->index('next_workflow_template_step_id', 'wf_template_step_actions_next_step_index');
+            $table->index('resulting_step_status_id', 'wf_template_step_actions_result_step_status_index');
+            $table->index('resulting_application_status_id', 'wf_template_step_actions_result_app_status_index');
+        });
+
+        Schema::table($workflowTemplateStepActions, function (Blueprint $table) use ($workflowTemplateSteps): void {
+            $table->foreign('next_workflow_template_step_id', 'wf_template_step_actions_next_step_fk')
+                ->references('id')
+                ->on($workflowTemplateSteps)
+                ->nullOnDelete();
+        });
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW INSTANCES
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowInstances, function (Blueprint $table) use ($workflowTemplates, $workflowTemplateSteps): void {
+            $table->id();
+
+            $table->foreignId('workflow_template_id')
+                ->constrained($workflowTemplates)
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+
+            $table->string('subject_type');
+            $table->unsignedBigInteger('subject_id');
+
+            $table->unsignedBigInteger('current_workflow_instance_step_id')->nullable();
+
+            $table->foreignId('current_workflow_template_step_id')
+                ->nullable()
+                ->constrained($workflowTemplateSteps)
+                ->nullOnDelete();
+
+            $table->unsignedBigInteger('application_status_id')->nullable();
+
+            $table->boolean('is_closed')->default(false);
+
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->timestamp('closed_at')->nullable();
+
+            $table->json('context')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['subject_type', 'subject_id'], 'wf_instances_subject_index');
+            $table->index(['workflow_template_id', 'is_closed'], 'wf_instances_template_closed_index');
+            $table->index('application_status_id', 'wf_instances_application_status_index');
+        });
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW INSTANCE STEPS
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowInstanceSteps, function (Blueprint $table) use ($workflowInstances, $workflowTemplateSteps): void {
+            $table->id();
+
+            $table->foreignId('workflow_instance_id')
+                ->constrained($workflowInstances)
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->foreignId('workflow_template_step_id')
+                ->constrained($workflowTemplateSteps)
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+
+            $table->unsignedInteger('sequence_no');
+            $table->unsignedBigInteger('status_id')->nullable();
+            $table->text('remarks')->nullable();
+
+            $table->timestamp('opened_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->timestamp('closed_at')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['workflow_instance_id', 'sequence_no'], 'wf_instance_steps_instance_sequence_index');
+            $table->index(['workflow_instance_id', 'workflow_template_step_id'], 'wf_instance_steps_instance_template_step_index');
+            $table->index('status_id', 'wf_instance_steps_status_index');
+        });
+
+        Schema::table($workflowInstances, function (Blueprint $table) use ($workflowInstanceSteps): void {
+            $table->foreign('current_workflow_instance_step_id', 'wf_instances_current_step_fk')
+                ->references('id')
+                ->on($workflowInstanceSteps)
+                ->nullOnDelete();
+        });
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW INSTANCE STEP ASSIGNMENTS
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowInstanceStepAssignments, function (Blueprint $table) use ($workflowInstanceSteps): void {
+            $table->id();
+
+            $table->foreignId('workflow_instance_step_id')
+                ->constrained($workflowInstanceSteps)
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('assigned_to_person_id')->nullable();
+            $table->unsignedBigInteger('assigned_to_position_id')->nullable();
+
+            $table->timestamp('assigned_at')->nullable();
+            $table->timestamp('unassigned_at')->nullable();
+
+            $table->boolean('is_active')->default(true);
+            $table->text('remarks')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['workflow_instance_step_id', 'role_id'], 'wf_instance_step_assignments_step_role_index');
+            $table->index('role_id', 'wf_instance_step_assignments_role_index');
+            $table->index('assigned_to_person_id', 'wf_instance_step_assignments_person_index');
+            $table->index('assigned_to_position_id', 'wf_instance_step_assignments_position_index');
+        });
+
+        /**
+         * -----------------------------------------------------------------
+         * WORKFLOW INSTANCE TRANSITIONS
+         * -----------------------------------------------------------------
+         */
+        Schema::create($workflowInstanceTransitions, function (Blueprint $table) use (
+            $workflowInstances,
+            $workflowInstanceSteps,
+            $workflowTemplateStepActions
+        ): void {
+            $table->id();
+
+            $table->foreignId('workflow_instance_id')
+                ->constrained($workflowInstances)
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->foreignId('from_workflow_instance_step_id')
+                ->nullable()
+                ->constrained($workflowInstanceSteps)
+                ->nullOnDelete();
+
+            $table->foreignId('to_workflow_instance_step_id')
+                ->nullable()
+                ->constrained($workflowInstanceSteps)
+                ->nullOnDelete();
+
+            $table->foreignId('workflow_template_step_action_id')
+                ->nullable()
+                ->constrained($workflowTemplateStepActions)
+                ->nullOnDelete();
+
+            $table->unsignedBigInteger('action_id')->nullable();
+
+            $table->unsignedBigInteger('acted_by_person_id')->nullable();
+            $table->unsignedBigInteger('acted_by_position_id')->nullable();
+
+            $table->unsignedBigInteger('from_step_status_id')->nullable();
+            $table->unsignedBigInteger('to_step_status_id')->nullable();
+
+            $table->unsignedBigInteger('from_application_status_id')->nullable();
+            $table->unsignedBigInteger('to_application_status_id')->nullable();
+
+            $table->text('remarks')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamp('acted_at')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['workflow_instance_id', 'acted_at'], 'wf_instance_transitions_instance_acted_at_index');
+            $table->index('action_id', 'wf_instance_transitions_action_index');
+            $table->index('acted_by_person_id', 'wf_instance_transitions_person_index');
+            $table->index('acted_by_position_id', 'wf_instance_transitions_position_index');
+            $table->index('from_step_status_id', 'wf_instance_transitions_from_step_status_index');
+            $table->index('to_step_status_id', 'wf_instance_transitions_to_step_status_index');
+            $table->index('from_application_status_id', 'wf_instance_transitions_from_app_status_index');
+            $table->index('to_application_status_id', 'wf_instance_transitions_to_app_status_index');
+        });
+    }
+
+    public function down(): void
+    {
+        $tableNames = config('laraflow.table_names', []);
+
+        $workflowTemplates = $tableNames['workflow_templates'] ?? 'workflow_templates';
+        $workflowTemplateSteps = $tableNames['workflow_template_steps'] ?? 'workflow_template_steps';
+        $workflowTemplateStepAssignments = $tableNames['workflow_template_step_assignments'] ?? 'workflow_template_step_assignments';
+        $workflowTemplateStepActions = $tableNames['workflow_template_step_actions'] ?? 'workflow_template_step_actions';
+
+        $workflowInstances = $tableNames['workflow_instances'] ?? 'workflow_instances';
+        $workflowInstanceSteps = $tableNames['workflow_instance_steps'] ?? 'workflow_instance_steps';
+        $workflowInstanceStepAssignments = $tableNames['workflow_instance_step_assignments'] ?? 'workflow_instance_step_assignments';
+        $workflowInstanceTransitions = $tableNames['workflow_instance_transitions'] ?? 'workflow_instance_transitions';
+
+        Schema::dropIfExists($workflowInstanceTransitions);
+        Schema::dropIfExists($workflowInstanceStepAssignments);
+        Schema::dropIfExists($workflowInstanceSteps);
+        Schema::dropIfExists($workflowInstances);
+
+        Schema::dropIfExists($workflowTemplateStepActions);
+        Schema::dropIfExists($workflowTemplateStepAssignments);
+        Schema::dropIfExists($workflowTemplateSteps);
+        Schema::dropIfExists($workflowTemplates);
+    }
+};
