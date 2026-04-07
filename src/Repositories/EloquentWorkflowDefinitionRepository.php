@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JasperFernandez\Laraflow\Repositories;
 
+use Illuminate\Database\Eloquent\Model;
 use JasperFernandez\Laraflow\Contracts\WorkflowDefinitionRepository;
 use JasperFernandez\Laraflow\Data\ActionData;
 use JasperFernandez\Laraflow\Data\StepData;
@@ -12,7 +13,6 @@ use JasperFernandez\Laraflow\Models\WorkflowTemplate;
 use JasperFernandez\Laraflow\Models\WorkflowTemplateStep;
 use JasperFernandez\Laraflow\Models\WorkflowTemplateStepAction;
 use JasperFernandez\Laraflow\Models\WorkflowTemplateStepAssignment;
-use Illuminate\Database\Eloquent\Model;
 
 final class EloquentWorkflowDefinitionRepository implements WorkflowDefinitionRepository
 {

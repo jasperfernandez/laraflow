@@ -9,8 +9,8 @@ use JasperFernandez\Laraflow\Models\WorkflowTemplateStep;
 use JasperFernandez\Laraflow\Models\WorkflowTemplateStepAction;
 use JasperFernandez\Laraflow\Models\WorkflowTemplateStepAssignment;
 use JasperFernandez\Laraflow\Services\WorkflowEngine;
-use JasperFernandez\Laraflow\Tests\Support\Models\DummySubject;
 use JasperFernandez\Laraflow\Tests\Support\Models\Action;
+use JasperFernandez\Laraflow\Tests\Support\Models\DummySubject;
 use JasperFernandez\Laraflow\Tests\Support\Models\Status;
 use JasperFernandez\Laraflow\Tests\Support\Models\TestUser;
 
@@ -80,6 +80,6 @@ it('throws when actor is not authorized for the current step', function () {
 
     $instance = $engine->start('MEMBERSHIP-APPLICATION', $subject);
 
-    expect(fn() => $engine->apply($instance->fresh(), 'submit_application', $user))
+    expect(fn () => $engine->apply($instance->fresh(), 'submit_application', $user))
         ->toThrow(UnauthorizedActionException::class);
 });

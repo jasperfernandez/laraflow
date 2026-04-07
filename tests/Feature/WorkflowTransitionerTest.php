@@ -28,7 +28,7 @@ it('throws when applying an action to a closed workflow instance', function () {
 
     $instance->forceFill(['is_closed' => true])->save();
 
-    expect(fn() => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
+    expect(fn () => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
         ->toThrow(WorkflowStateException::class, 'Workflow instance is already closed.');
 });
 
@@ -37,7 +37,7 @@ it('throws when the workflow instance has no current template step', function ()
 
     $instance->forceFill(['current_workflow_template_step_id' => null])->save();
 
-    expect(fn() => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
+    expect(fn () => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
         ->toThrow(WorkflowStateException::class, 'Workflow instance has no current template step.');
 });
 
@@ -46,7 +46,7 @@ it('throws when the current template can no longer be resolved', function () {
 
     $instance->template()->update(['is_active' => false]);
 
-    expect(fn() => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
+    expect(fn () => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
         ->toThrow(WorkflowDefinitionException::class, 'Workflow template [MEMBERSHIP-APPLICATION] was not found.');
 });
 
@@ -57,14 +57,14 @@ it('throws when the workflow instance has no current runtime step', function () 
         'current_workflow_instance_step_id' => null,
     ]);
 
-    expect(fn() => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
+    expect(fn () => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
         ->toThrow(WorkflowStateException::class, 'Workflow instance has no current runtime step.');
 });
 
 it('throws when an action is not allowed for the current step', function () {
     [$instance, $actor] = buildWorkflowRuntime();
 
-    expect(fn() => app(WorkflowEngine::class)->apply($instance->fresh(), 'unknown_action', $actor))
+    expect(fn () => app(WorkflowEngine::class)->apply($instance->fresh(), 'unknown_action', $actor))
         ->toThrow(InvalidActionException::class, 'Action [unknown_action] is not allowed for step [APPLICANT_REGISTRATION].');
 });
 
@@ -79,7 +79,7 @@ it('throws when an actor is not authorized for the current step', function () {
 
     $actor->fakeRoles = ['guest'];
 
-    expect(fn() => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
+    expect(fn () => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
         ->toThrow(UnauthorizedActionException::class, 'Actor is not allowed to execute [submit_application] on step [APPLICANT_REGISTRATION].');
 });
 
@@ -171,13 +171,12 @@ it('throws when the next step definition referenced by an action is missing', fu
     $missingNextStepId = $fixture['steps']['eligibility']->id + 999;
 
     app()->bind(WorkflowDefinitionRepository::class, function () use ($fixture, $missingNextStepId) {
-        return new class($fixture, $missingNextStepId) implements WorkflowDefinitionRepository {
+        return new class($fixture, $missingNextStepId) implements WorkflowDefinitionRepository
+        {
             public function __construct(
                 private array $fixture,
-                private int   $missingNextStepId,
-            )
-            {
-            }
+                private int $missingNextStepId,
+            ) {}
 
             public function findByTemplateCode(string $templateCode): ?TemplateData
             {
@@ -220,7 +219,7 @@ it('throws when the next step definition referenced by an action is missing', fu
 
     app()->forgetInstance(WorkflowEngine::class);
 
-    expect(fn() => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
+    expect(fn () => app(WorkflowEngine::class)->apply($instance->fresh(), 'submit_application', $actor))
         ->toThrow(WorkflowDefinitionException::class, "Next step definition [{$missingNextStepId}] was not found.");
 });
 
@@ -324,8 +323,8 @@ function buildWorkflowRuntime(): array
             'steps' => $steps,
             'template' => $template,
             'actions' => [
-                'submit' => (object)['model' => $actions['submit'], 'pivot' => $submitPivot],
-                'approve' => (object)['model' => $actions['approve'], 'pivot' => $approvePivot],
+                'submit' => (object) ['model' => $actions['submit'], 'pivot' => $submitPivot],
+                'approve' => (object) ['model' => $actions['approve'], 'pivot' => $approvePivot],
             ],
         ],
     ];

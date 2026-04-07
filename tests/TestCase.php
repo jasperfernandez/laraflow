@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace JasperFernandez\Laraflow\Tests;
 
 use Illuminate\Database\Eloquent\Model;
+use JasperFernandez\Laraflow\LaraflowServiceProvider;
 use JasperFernandez\Laraflow\Tests\Support\Models\Action;
 use JasperFernandez\Laraflow\Tests\Support\Models\Status;
 use Orchestra\Testbench\TestCase as Orchestra;
-use JasperFernandez\Laraflow\LaraflowServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
