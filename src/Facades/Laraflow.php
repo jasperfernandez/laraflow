@@ -3,9 +3,10 @@
 namespace JasperFernandez\Laraflow\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use JasperFernandez\Laraflow\Services\WorkflowEngine;
 
 /**
- * @see \JasperFernandez\Laraflow\Services\WorkflowEngine
+ * @see WorkflowEngine
  */
 class Laraflow extends Facade
 {
