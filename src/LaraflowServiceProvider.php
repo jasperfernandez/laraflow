@@ -36,9 +36,7 @@ final class LaraflowServiceProvider extends PackageServiceProvider
             RoleBasedWorkflowAuthorization::class,
         );
 
-        $this->app->singleton(
-            WorkflowEngine::class,
-            WorkflowEngine::class,
-        );
+        $this->app->singleton(WorkflowEngine::class);
+        $this->app->alias(WorkflowEngine::class, 'laraflow');
     }
 }

@@ -5,12 +5,12 @@ namespace JasperFernandez\Laraflow\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \JasperFernandez\Laraflow\Laraflow
+ * @see \JasperFernandez\Laraflow\Services\WorkflowEngine
  */
 class Laraflow extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \JasperFernandez\Laraflow\Laraflow::class;
+        return 'laraflow';
     }
 }
