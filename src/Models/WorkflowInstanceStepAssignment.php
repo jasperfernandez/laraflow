@@ -6,6 +6,7 @@ namespace JasperFernandez\Laraflow\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -55,7 +56,7 @@ class WorkflowInstanceStepAssignment extends Model
         return $this->belongsTo(config('laraflow.models.role'));
     }
 
-    public function assignee(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function assignee(): MorphTo
     {
         return $this->morphTo();
     }

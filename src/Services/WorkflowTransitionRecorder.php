@@ -6,6 +6,7 @@ namespace JasperFernandez\Laraflow\Services;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use JasperFernandez\Laraflow\Data\ActionData;
 use JasperFernandez\Laraflow\Data\TransitionPayload;
 use JasperFernandez\Laraflow\Models\WorkflowInstance;
@@ -26,7 +27,7 @@ final class WorkflowTransitionRecorder
         ?int $fromApplicationStatusId,
         ?int $toApplicationStatusId,
     ): WorkflowInstanceTransition {
-        /** @var \Illuminate\Database\Eloquent\Model $actorModel */
+        /** @var Model $actorModel */
         $actorModel = $actor;
 
         return WorkflowInstanceTransition::query()->create([

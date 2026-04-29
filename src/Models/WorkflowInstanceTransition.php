@@ -6,6 +6,7 @@ namespace JasperFernandez\Laraflow\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -104,7 +105,7 @@ class WorkflowInstanceTransition extends Model
         return $this->belongsTo(config('laraflow.models.status'), 'from_application_status_id');
     }
 
-    public function actor(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function actor(): MorphTo
     {
         return $this->morphTo();
     }
