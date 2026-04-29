@@ -54,7 +54,11 @@ final readonly class WorkflowStarter
                 'current_workflow_instance_step_id' => $instanceStep->id,
             ])->save();
 
-            return $instance->fresh(['currentStep', 'steps', 'transitions']);
+            $instance = $instance->fresh(['currentStep', 'steps', 'transitions']);
+
+            \JasperFernandez\Laraflow\Events\WorkflowStarted::dispatch($instance);
+
+            return $instance;
         });
     }
 }

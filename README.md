@@ -323,6 +323,48 @@ if ($finalResult->closed) {
 }
 ```
 
+## Subject Integration
+
+To easily manage workflows on your models, use the `HasWorkflows` trait:
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use JasperFernandez\Laraflow\Traits\HasWorkflows;
+
+class Application extends Model
+{
+    use HasWorkflows;
+}
+
+// Usage
+$application = Application::find(1);
+$currentWorkflow = $application->currentWorkflow;
+$allWorkflows = $application->workflowInstances;
+```
+
+## Events
+
+Laraflow dispatches the following events during the workflow lifecycle:
+
+| Event | Dispatched When |
+|-------|-----------------|
+| `WorkflowStarted` | A new workflow instance is initialized. |
+| `WorkflowTransitioned` | An action is successfully applied to a step. |
+| `WorkflowClosed` | A workflow instance is marked as closed. |
+
+You can listen to these events in your `EventServiceProvider`:
+
+```php
+use JasperFernandez\Laraflow\Events\WorkflowTransitioned;
+
+public function boot()
+{
+    Event::listen(WorkflowTransitioned::class, function ($event) {
+        // $event->result is a TransitionResult DTO
+    });
+}
+```
+
 ## Notes
 
 - Use `WorkflowEngine` as the main entry point.

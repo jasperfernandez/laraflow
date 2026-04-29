@@ -145,13 +145,21 @@ final readonly class WorkflowTransitioner
 
             $instance->refresh();
 
-            return new TransitionResult(
+            $result = new TransitionResult(
                 instance: $instance->fresh(['currentStep', 'steps', 'transitions']),
                 fromStep: $fromStep->fresh(),
                 toStep: $toStep?->fresh(),
                 transition: $transition,
                 closed: (bool) $instance->is_closed,
             );
+
+            \JasperFernandez\Laraflow\Events\WorkflowTransitioned::dispatch($result);
+
+            if ($result->closed) {
+                \JasperFernandez\Laraflow\Events\WorkflowClosed::dispatch($result->instance);
+            }
+
+            return $result;
         });
     }
 }
