@@ -11,6 +11,8 @@ use JasperFernandez\Laraflow\Contracts\WorkflowAuthorization;
 use JasperFernandez\Laraflow\Contracts\WorkflowDefinitionRepository;
 use JasperFernandez\Laraflow\Data\TransitionPayload;
 use JasperFernandez\Laraflow\Data\TransitionResult;
+use JasperFernandez\Laraflow\Events\WorkflowClosed;
+use JasperFernandez\Laraflow\Events\WorkflowTransitioned;
 use JasperFernandez\Laraflow\Exceptions\InvalidActionException;
 use JasperFernandez\Laraflow\Exceptions\UnauthorizedActionException;
 use JasperFernandez\Laraflow\Exceptions\WorkflowDefinitionException;
@@ -153,10 +155,10 @@ final readonly class WorkflowTransitioner
                 closed: (bool) $instance->is_closed,
             );
 
-            \JasperFernandez\Laraflow\Events\WorkflowTransitioned::dispatch($result);
+            WorkflowTransitioned::dispatch($result);
 
             if ($result->closed) {
-                \JasperFernandez\Laraflow\Events\WorkflowClosed::dispatch($result->instance);
+                WorkflowClosed::dispatch($result->instance);
             }
 
             return $result;

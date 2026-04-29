@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use JasperFernandez\Laraflow\Contracts\WorkflowDefinitionRepository;
+use JasperFernandez\Laraflow\Events\WorkflowStarted;
 use JasperFernandez\Laraflow\Exceptions\WorkflowDefinitionException;
 use JasperFernandez\Laraflow\Models\WorkflowInstance;
 
@@ -56,7 +57,7 @@ final readonly class WorkflowStarter
 
             $instance = $instance->fresh(['currentStep', 'steps', 'transitions']);
 
-            \JasperFernandez\Laraflow\Events\WorkflowStarted::dispatch($instance);
+            WorkflowStarted::dispatch($instance);
 
             return $instance;
         });
