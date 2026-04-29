@@ -99,7 +99,7 @@ it('moves the workflow to the next step and records the transition payload', fun
         ->and($result->fromStep->closed_at)->not->toBeNull()
         ->and($result->fromStep->status_id)->toBe($fixture['statuses']['completed']->id)
         ->and($result->instance->current_workflow_template_step_id)->toBe($fixture['steps']['eligibility']->id)
-        ->and($result->instance->application_status_id)->toBe($fixture['statuses']['pending']->id)
+        ->and($result->instance->subject_status_id)->toBe($fixture['statuses']['pending']->id)
         ->and($result->instance->is_closed)->toBeFalse()
         ->and($result->transition->to_workflow_instance_step_id)->toBe($result->toStep?->id)
         ->and($result->transition->actor_id)->toBe($actor->id)
@@ -128,8 +128,8 @@ it('moves the workflow to the next step and records the transition payload', fun
         'action_id' => $fixture['actions']['submit']->model->id,
         'from_step_status_id' => null,
         'to_step_status_id' => $fixture['statuses']['completed']->id,
-        'from_application_status_id' => null,
-        'to_application_status_id' => $fixture['statuses']['pending']->id,
+        'from_subject_status_id' => null,
+        'to_subject_status_id' => $fixture['statuses']['pending']->id,
     ]);
 });
 
@@ -147,7 +147,7 @@ it('can close the workflow without opening a new step', function () {
     expect($closedResult->closed)->toBeTrue()
         ->and($closedResult->toStep)->toBeNull()
         ->and($closedResult->instance->is_closed)->toBeTrue()
-        ->and($closedResult->instance->application_status_id)->toBe($fixture['statuses']['approved']->id)
+        ->and($closedResult->instance->subject_status_id)->toBe($fixture['statuses']['approved']->id)
         ->and($closedResult->instance->current_workflow_template_step_id)->toBe($fixture['steps']['eligibility']->id)
         ->and($closedResult->instance->completed_at)->not->toBeNull()
         ->and($closedResult->instance->closed_at)->not->toBeNull()
@@ -159,7 +159,7 @@ it('can close the workflow without opening a new step', function () {
     $this->assertDatabaseHas('workflow_instance_transitions', [
         'id' => $closedResult->transition->id,
         'to_workflow_instance_step_id' => null,
-        'to_application_status_id' => $fixture['statuses']['approved']->id,
+        'to_subject_status_id' => $fixture['statuses']['approved']->id,
     ]);
 });
 
@@ -201,11 +201,11 @@ it('throws when the next step definition referenced by an action is missing', fu
                                     nextTemplateStepId: $this->missingNextStepId,
                                     nextStepCode: 'MISSING_STEP',
                                     completesStep: true,
-                                    closesApplication: false,
+                                    closesWorkflow: false,
                                     resultingStepStatusId: $this->fixture['statuses']['completed']->id,
                                     resultingStepStatusCode: 'completed',
-                                    resultingApplicationStatusId: $this->fixture['statuses']['pending']->id,
-                                    resultingApplicationStatusCode: 'pending_eligibility_verification',
+                                    resultingSubjectStatusId: $this->fixture['statuses']['pending']->id,
+                                    resultingSubjectStatusCode: 'pending_eligibility_verification',
                                 ),
                             ],
                         ),
@@ -286,8 +286,8 @@ function buildWorkflowRuntime(): array
         'next_workflow_template_step_id' => $steps['eligibility']->id,
         'completes_step' => true,
         'resulting_step_status_id' => $statuses['completed']->id,
-        'resulting_application_status_id' => $statuses['pending']->id,
-        'closes_application' => false,
+        'resulting_subject_status_id' => $statuses['pending']->id,
+        'closes_workflow' => false,
     ]);
 
     $approvePivot = WorkflowTemplateStepAction::query()->create([
@@ -296,8 +296,8 @@ function buildWorkflowRuntime(): array
         'next_workflow_template_step_id' => null,
         'completes_step' => true,
         'resulting_step_status_id' => $statuses['approved_step']->id,
-        'resulting_application_status_id' => $statuses['approved']->id,
-        'closes_application' => true,
+        'resulting_subject_status_id' => $statuses['approved']->id,
+        'closes_workflow' => true,
     ]);
 
     $subject = DummySubject::query()->create(['name' => 'Workflow Subject']);

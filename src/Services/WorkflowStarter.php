@@ -40,7 +40,7 @@ final readonly class WorkflowStarter
                 'subject_id' => $subject->getKey(),
                 'current_workflow_instance_step_id' => null,
                 'current_workflow_template_step_id' => $firstStep->id,
-                'application_status_id' => null,
+                'subject_status_id' => null,
                 'is_closed' => false,
                 'started_at' => CarbonImmutable::now(),
                 'context' => $context,

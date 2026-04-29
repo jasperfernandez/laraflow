@@ -62,8 +62,8 @@ it('throws when actor is not authorized for the current step', function () {
         'next_workflow_template_step_id' => null,
         'completes_step' => true,
         'resulting_step_status_id' => $completedStatus->id,
-        'resulting_application_status_id' => $nextAppStatus->id,
-        'closes_application' => false,
+        'resulting_subject_status_id' => $nextAppStatus->id,
+        'closes_workflow' => false,
     ]);
 
     $subject = DummySubject::query()->create(['name' => 'Example Subject']);

@@ -24,8 +24,8 @@ final class WorkflowTransitionRecorder
         TransitionPayload $payload,
         ?int $fromStepStatusId,
         ?int $toStepStatusId,
-        ?int $fromApplicationStatusId,
-        ?int $toApplicationStatusId,
+        ?int $fromSubjectStatusId,
+        ?int $toSubjectStatusId,
     ): WorkflowInstanceTransition {
         /** @var Model $actorModel */
         $actorModel = $actor;
@@ -40,8 +40,8 @@ final class WorkflowTransitionRecorder
             'actor_id' => $actorModel->getKey(),
             'from_step_status_id' => $fromStepStatusId,
             'to_step_status_id' => $toStepStatusId,
-            'from_application_status_id' => $fromApplicationStatusId,
-            'to_application_status_id' => $toApplicationStatusId,
+            'from_subject_status_id' => $fromSubjectStatusId,
+            'to_subject_status_id' => $toSubjectStatusId,
             'remarks' => $payload->remarks,
             'metadata' => $payload->metadata,
             'acted_at' => CarbonImmutable::now(),

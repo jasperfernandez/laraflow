@@ -83,7 +83,7 @@ final readonly class WorkflowTransitioner
         }
 
         return DB::transaction(function () use ($instance, $fromStep, $template, $action, $actor, $payload): TransitionResult {
-            $fromApplicationStatusId = $instance->application_status_id;
+            $fromSubjectStatusId = $instance->subject_status_id;
             $fromStepStatusId = $fromStep->status_id;
 
             $fromStep->forceFill([
@@ -110,20 +110,20 @@ final readonly class WorkflowTransitioner
                 $instance->forceFill([
                     'current_workflow_instance_step_id' => $toStep->id,
                     'current_workflow_template_step_id' => $nextStepDefinition->id,
-                    'application_status_id' => $action->resultingApplicationStatusId,
+                    'subject_status_id' => $action->resultingSubjectStatusId,
                     'is_closed' => false,
                     'completed_at' => null,
                     'closed_at' => null,
                 ])->save();
             } else {
                 $instance->forceFill([
-                    'application_status_id' => $action->resultingApplicationStatusId,
-                    'is_closed' => $action->closesApplication,
-                    'completed_at' => $action->closesApplication ? CarbonImmutable::now() : $instance->completed_at,
-                    'closed_at' => $action->closesApplication ? CarbonImmutable::now() : $instance->closed_at,
+                    'subject_status_id' => $action->resultingSubjectStatusId,
+                    'is_closed' => $action->closesWorkflow,
+                    'completed_at' => $action->closesWorkflow ? CarbonImmutable::now() : $instance->completed_at,
+                    'closed_at' => $action->closesWorkflow ? CarbonImmutable::now() : $instance->closed_at,
                 ])->save();
 
-                if ($action->closesApplication) {
+                if ($action->closesWorkflow) {
                     $instance->forceFill([
                         'current_workflow_instance_step_id' => $fromStep->id,
                     ])->save();
@@ -139,8 +139,8 @@ final readonly class WorkflowTransitioner
                 payload: $payload,
                 fromStepStatusId: $fromStepStatusId,
                 toStepStatusId: $action->resultingStepStatusId,
-                fromApplicationStatusId: $fromApplicationStatusId,
-                toApplicationStatusId: $action->resultingApplicationStatusId,
+                fromSubjectStatusId: $fromSubjectStatusId,
+                toSubjectStatusId: $action->resultingSubjectStatusId,
             );
 
             $instance->refresh();

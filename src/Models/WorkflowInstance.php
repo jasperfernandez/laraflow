@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  * @property int|string $subject_id
  * @property int|null $current_workflow_instance_step_id
  * @property int|null $current_workflow_template_step_id
- * @property int|null $application_status_id
+ * @property int|null $subject_status_id
  * @property bool $is_closed
  * @property array|null $context
  * @property Carbon|null $started_at
@@ -28,7 +28,7 @@ use Illuminate\Support\Carbon;
  * @property-read WorkflowTemplate $template
  * @property-read WorkflowInstanceStep|null $currentStep
  * @property-read WorkflowTemplateStep|null $currentTemplateStep
- * @property-read Model|null $applicationStatus
+ * @property-read Model|null $subjectStatus
  * @property-read Collection<int, WorkflowInstanceStep> $steps
  * @property-read Collection<int, WorkflowInstanceTransition> $transitions
  */
@@ -42,7 +42,7 @@ class WorkflowInstance extends Model
         'subject_id',
         'current_workflow_instance_step_id',
         'current_workflow_template_step_id',
-        'application_status_id',
+        'subject_status_id',
         'is_closed',
         'started_at',
         'completed_at',
@@ -83,9 +83,9 @@ class WorkflowInstance extends Model
         return $this->belongsTo(WorkflowTemplateStep::class, 'current_workflow_template_step_id');
     }
 
-    public function applicationStatus(): BelongsTo
+    public function subjectStatus(): BelongsTo
     {
-        return $this->belongsTo(config('laraflow.models.status'), 'application_status_id');
+        return $this->belongsTo(config('laraflow.models.status'), 'subject_status_id');
     }
 
     public function steps(): HasMany

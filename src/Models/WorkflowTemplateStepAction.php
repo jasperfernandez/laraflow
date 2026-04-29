@@ -15,13 +15,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $next_workflow_template_step_id
  * @property bool $completes_step
  * @property int|null $resulting_step_status_id
- * @property int|null $resulting_application_status_id
- * @property bool $closes_application
+ * @property int|null $resulting_subject_status_id
+ * @property bool $closes_workflow
  * @property-read WorkflowTemplateStep $templateStep
  * @property-read Model $action
  * @property-read WorkflowTemplateStep|null $nextTemplateStep
  * @property-read Model|null $resultingStepStatus
- * @property-read Model|null $resultingApplicationStatus
+ * @property-read Model|null $resultingSubjectStatus
  */
 class WorkflowTemplateStepAction extends Model
 {
@@ -33,13 +33,13 @@ class WorkflowTemplateStepAction extends Model
         'next_workflow_template_step_id',
         'completes_step',
         'resulting_step_status_id',
-        'resulting_application_status_id',
-        'closes_application',
+        'resulting_subject_status_id',
+        'closes_workflow',
     ];
 
     protected $casts = [
         'completes_step' => 'boolean',
-        'closes_application' => 'boolean',
+        'closes_workflow' => 'boolean',
     ];
 
     public function getTable(): string
@@ -67,8 +67,8 @@ class WorkflowTemplateStepAction extends Model
         return $this->belongsTo(config('laraflow.models.status'), 'resulting_step_status_id');
     }
 
-    public function resultingApplicationStatus(): BelongsTo
+    public function resultingSubjectStatus(): BelongsTo
     {
-        return $this->belongsTo(config('laraflow.models.status'), 'resulting_application_status_id');
+        return $this->belongsTo(config('laraflow.models.status'), 'resulting_subject_status_id');
     }
 }

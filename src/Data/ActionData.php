@@ -13,10 +13,10 @@ final readonly class ActionData
         public ?int $nextTemplateStepId,
         public ?string $nextStepCode,
         public bool $completesStep,
-        public bool $closesApplication,
+        public bool $closesWorkflow,
         public ?int $resultingStepStatusId,
         public ?string $resultingStepStatusCode,
-        public ?int $resultingApplicationStatusId,
-        public ?string $resultingApplicationStatusCode,
+        public ?int $resultingSubjectStatusId,
+        public ?string $resultingSubjectStatusCode,
     ) {}
 }

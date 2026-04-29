@@ -20,8 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|string $actor_id
  * @property int|null $from_step_status_id
  * @property int|null $to_step_status_id
- * @property int|null $from_application_status_id
- * @property int|null $to_application_status_id
+ * @property int|null $from_subject_status_id
+ * @property int|null $to_subject_status_id
  * @property string|null $remarks
  * @property array|null $metadata
  * @property-read WorkflowInstance $instance
@@ -31,8 +31,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Model $action
  * @property-read Model|null $fromStepStatus
  * @property-read Model|null $toStepStatus
- * @property-read Model|null $fromApplicationStatus
- * @property-read Model|null $toApplicationStatus
+ * @property-read Model|null $fromSubjectStatus
+ * @property-read Model|null $toSubjectStatus
  */
 class WorkflowInstanceTransition extends Model
 {
@@ -48,8 +48,8 @@ class WorkflowInstanceTransition extends Model
         'actor_id',
         'from_step_status_id',
         'to_step_status_id',
-        'from_application_status_id',
-        'to_application_status_id',
+        'from_subject_status_id',
+        'to_subject_status_id',
         'remarks',
         'metadata',
         'acted_at',
@@ -100,9 +100,9 @@ class WorkflowInstanceTransition extends Model
         return $this->belongsTo(config('laraflow.models.status'), 'to_step_status_id');
     }
 
-    public function fromApplicationStatus(): BelongsTo
+    public function fromSubjectStatus(): BelongsTo
     {
-        return $this->belongsTo(config('laraflow.models.status'), 'from_application_status_id');
+        return $this->belongsTo(config('laraflow.models.status'), 'from_subject_status_id');
     }
 
     public function actor(): MorphTo
@@ -110,8 +110,8 @@ class WorkflowInstanceTransition extends Model
         return $this->morphTo();
     }
 
-    public function toApplicationStatus(): BelongsTo
+    public function toSubjectStatus(): BelongsTo
     {
-        return $this->belongsTo(config('laraflow.models.status'), 'to_application_status_id');
+        return $this->belongsTo(config('laraflow.models.status'), 'to_subject_status_id');
     }
 }

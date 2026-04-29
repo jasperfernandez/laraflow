@@ -185,8 +185,8 @@ WorkflowTemplateStepAction::create([
     'next_workflow_template_step_id' => $reviewStep->id,
     'completes_step' => true,
     'resulting_step_status_id' => $completedStep->id,
-    'resulting_application_status_id' => $pendingReview->id,
-    'closes_application' => false,
+    'resulting_subject_status_id' => $pendingReview->id,
+    'closes_workflow' => false,
 ]);
 
 WorkflowTemplateStepAction::create([
@@ -195,8 +195,8 @@ WorkflowTemplateStepAction::create([
     'next_workflow_template_step_id' => null,
     'completes_step' => true,
     'resulting_step_status_id' => $approvedStep->id,
-    'resulting_application_status_id' => $approvedApplication->id,
-    'closes_application' => true,
+    'resulting_subject_status_id' => $approvedApplication->id,
+    'closes_workflow' => true,
 ]);
 ```
 

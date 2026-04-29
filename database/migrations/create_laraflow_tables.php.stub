@@ -111,8 +111,8 @@ return new class extends Migration
 
             $table->boolean('completes_step')->default(false);
             $table->unsignedBigInteger('resulting_step_status_id')->nullable();
-            $table->unsignedBigInteger('resulting_application_status_id')->nullable();
-            $table->boolean('closes_application')->default(false);
+            $table->unsignedBigInteger('resulting_subject_status_id')->nullable();
+            $table->boolean('closes_workflow')->default(false);
 
             $table->timestamps();
             $table->softDeletes();
@@ -125,7 +125,7 @@ return new class extends Migration
             $table->index('action_id');
             $table->index('next_workflow_template_step_id', 'wf_template_step_actions_next_step_index');
             $table->index('resulting_step_status_id', 'wf_template_step_actions_result_step_status_index');
-            $table->index('resulting_application_status_id', 'wf_template_step_actions_result_app_status_index');
+            $table->index('resulting_subject_status_id', 'wf_template_step_actions_result_subj_status_index');
         });
 
         Schema::table($workflowTemplateStepActions, function (Blueprint $table) use ($workflowTemplateSteps): void {
@@ -158,7 +158,7 @@ return new class extends Migration
                 ->constrained($workflowTemplateSteps)
                 ->nullOnDelete();
 
-            $table->unsignedBigInteger('application_status_id')->nullable();
+            $table->unsignedBigInteger('subject_status_id')->nullable();
 
             $table->boolean('is_closed')->default(false);
 
@@ -173,7 +173,7 @@ return new class extends Migration
 
             $table->index(['subject_type', 'subject_id'], 'wf_instances_subject_index');
             $table->index(['workflow_template_id', 'is_closed'], 'wf_instances_template_closed_index');
-            $table->index('application_status_id', 'wf_instances_application_status_index');
+            $table->index('subject_status_id', 'wf_instances_subject_status_index');
         });
 
         /**
@@ -286,8 +286,8 @@ return new class extends Migration
             $table->unsignedBigInteger('from_step_status_id')->nullable();
             $table->unsignedBigInteger('to_step_status_id')->nullable();
 
-            $table->unsignedBigInteger('from_application_status_id')->nullable();
-            $table->unsignedBigInteger('to_application_status_id')->nullable();
+            $table->unsignedBigInteger('from_subject_status_id')->nullable();
+            $table->unsignedBigInteger('to_subject_status_id')->nullable();
 
             $table->text('remarks')->nullable();
             $table->json('metadata')->nullable();
@@ -301,8 +301,8 @@ return new class extends Migration
             $table->index(['actor_type', 'actor_id'], 'wf_instance_transitions_actor_index');
             $table->index('from_step_status_id', 'wf_instance_transitions_from_step_status_index');
             $table->index('to_step_status_id', 'wf_instance_transitions_to_step_status_index');
-            $table->index('from_application_status_id', 'wf_instance_transitions_from_app_status_index');
-            $table->index('to_application_status_id', 'wf_instance_transitions_to_app_status_index');
+            $table->index('from_subject_status_id', 'wf_instance_transitions_from_subj_status_index');
+            $table->index('to_subject_status_id', 'wf_instance_transitions_to_subj_status_index');
         });
     }
 

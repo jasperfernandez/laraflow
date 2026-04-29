@@ -24,7 +24,7 @@ final class EloquentWorkflowDefinitionRepository implements WorkflowDefinitionRe
                 'steps.actions.action',
                 'steps.actions.nextTemplateStep',
                 'steps.actions.resultingStepStatus',
-                'steps.actions.resultingApplicationStatus',
+                'steps.actions.resultingSubjectStatus',
             ])
             ->where('template_code', $templateCode)
             ->where('is_active', true)
@@ -51,15 +51,15 @@ final class EloquentWorkflowDefinitionRepository implements WorkflowDefinitionRe
                     nextTemplateStepId: $actionModel->next_workflow_template_step_id,
                     nextStepCode: $actionModel->nextTemplateStep?->step_code,
                     completesStep: $actionModel->completes_step,
-                    closesApplication: $actionModel->closes_application,
+                    closesWorkflow: $actionModel->closes_workflow,
                     resultingStepStatusId: $actionModel->resulting_step_status_id,
                     resultingStepStatusCode: $this->nullableStringAttribute(
                         $actionModel->resultingStepStatus,
                         'code',
                     ),
-                    resultingApplicationStatusId: $actionModel->resulting_application_status_id,
-                    resultingApplicationStatusCode: $this->nullableStringAttribute(
-                        $actionModel->resultingApplicationStatus,
+                    resultingSubjectStatusId: $actionModel->resulting_subject_status_id,
+                    resultingSubjectStatusCode: $this->nullableStringAttribute(
+                        $actionModel->resultingSubjectStatus,
                         'code',
                     ),
                 );
