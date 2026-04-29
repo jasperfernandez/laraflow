@@ -244,8 +244,6 @@ $result = app(WorkflowEngine::class)->apply(
     actionCode: 'submit_application',
     actor: $actor,
     payload: new TransitionPayload(
-        actedByPersonId: $actor->id,
-        actedByPositionId: null,
         remarks: 'Submitted for eligibility review',
         metadata: ['channel' => 'portal'],
     ),
@@ -305,7 +303,6 @@ $firstResult = $engine->apply(
     actionCode: 'submit_application',
     actor: $member,
     payload: new TransitionPayload(
-        actedByPersonId: $member->id,
         remarks: 'Application submitted',
     ),
 );
@@ -317,7 +314,6 @@ $finalResult = $engine->apply(
     actionCode: 'approve_application',
     actor: $reviewer,
     payload: new TransitionPayload(
-        actedByPersonId: $reviewer->id,
         remarks: 'Application approved',
     ),
 );

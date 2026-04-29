@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int $workflow_instance_step_id
  * @property int $role_id
- * @property int|null $assigned_to_person_id
- * @property int|null $assigned_to_position_id
+ * @property string|null $assignee_type
+ * @property int|string|null $assignee_id
  * @property bool $is_active
  * @property string|null $remarks
  * @property-read WorkflowInstanceStep $instanceStep
@@ -26,8 +26,8 @@ class WorkflowInstanceStepAssignment extends Model
     protected $fillable = [
         'workflow_instance_step_id',
         'role_id',
-        'assigned_to_person_id',
-        'assigned_to_position_id',
+        'assignee_type',
+        'assignee_id',
         'assigned_at',
         'unassigned_at',
         'is_active',
@@ -53,5 +53,10 @@ class WorkflowInstanceStepAssignment extends Model
     public function role(): BelongsTo
     {
         return $this->belongsTo(config('laraflow.models.role'));
+    }
+
+    public function assignee(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo();
     }
 }

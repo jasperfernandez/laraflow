@@ -82,7 +82,7 @@ final readonly class WorkflowTransitioner
             throw new WorkflowStateException('Workflow instance has no current runtime step.');
         }
 
-        return DB::transaction(function () use ($instance, $fromStep, $template, $action, $payload): TransitionResult {
+        return DB::transaction(function () use ($instance, $fromStep, $template, $action, $actor, $payload): TransitionResult {
             $fromApplicationStatusId = $instance->application_status_id;
             $fromStepStatusId = $fromStep->status_id;
 
@@ -135,6 +135,7 @@ final readonly class WorkflowTransitioner
                 fromStep: $fromStep->fresh(),
                 toStep: $toStep,
                 action: $action,
+                actor: $actor,
                 payload: $payload,
                 fromStepStatusId: $fromStepStatusId,
                 toStepStatusId: $action->resultingStepStatusId,

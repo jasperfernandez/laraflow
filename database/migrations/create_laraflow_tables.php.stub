@@ -231,8 +231,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->unsignedBigInteger('role_id');
-            $table->unsignedBigInteger('assigned_to_person_id')->nullable();
-            $table->unsignedBigInteger('assigned_to_position_id')->nullable();
+            $table->nullableMorphs('assignee');
 
             $table->timestamp('assigned_at')->nullable();
             $table->timestamp('unassigned_at')->nullable();
@@ -245,8 +244,7 @@ return new class extends Migration
 
             $table->index(['workflow_instance_step_id', 'role_id'], 'wf_instance_step_assignments_step_role_index');
             $table->index('role_id', 'wf_instance_step_assignments_role_index');
-            $table->index('assigned_to_person_id', 'wf_instance_step_assignments_person_index');
-            $table->index('assigned_to_position_id', 'wf_instance_step_assignments_position_index');
+            $table->index(['assignee_type', 'assignee_id'], 'wf_instance_step_assignments_assignee_index');
         });
 
         /**
@@ -283,8 +281,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('action_id')->nullable();
 
-            $table->unsignedBigInteger('acted_by_person_id')->nullable();
-            $table->unsignedBigInteger('acted_by_position_id')->nullable();
+            $table->nullableMorphs('actor');
 
             $table->unsignedBigInteger('from_step_status_id')->nullable();
             $table->unsignedBigInteger('to_step_status_id')->nullable();
@@ -301,8 +298,7 @@ return new class extends Migration
 
             $table->index(['workflow_instance_id', 'acted_at'], 'wf_instance_transitions_instance_acted_at_index');
             $table->index('action_id', 'wf_instance_transitions_action_index');
-            $table->index('acted_by_person_id', 'wf_instance_transitions_person_index');
-            $table->index('acted_by_position_id', 'wf_instance_transitions_position_index');
+            $table->index(['actor_type', 'actor_id'], 'wf_instance_transitions_actor_index');
             $table->index('from_step_status_id', 'wf_instance_transitions_from_step_status_index');
             $table->index('to_step_status_id', 'wf_instance_transitions_to_step_status_index');
             $table->index('from_application_status_id', 'wf_instance_transitions_from_app_status_index');

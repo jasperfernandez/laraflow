@@ -87,8 +87,6 @@ it('moves the workflow to the next step and records the transition payload', fun
     [$instance, $actor, $fixture] = buildWorkflowRuntime();
 
     $payload = new TransitionPayload(
-        actedByPersonId: 12,
-        actedByPositionId: 34,
         remarks: 'Submitted for review',
         metadata: ['channel' => 'portal'],
     );
@@ -104,8 +102,8 @@ it('moves the workflow to the next step and records the transition payload', fun
         ->and($result->instance->application_status_id)->toBe($fixture['statuses']['pending']->id)
         ->and($result->instance->is_closed)->toBeFalse()
         ->and($result->transition->to_workflow_instance_step_id)->toBe($result->toStep?->id)
-        ->and($result->transition->acted_by_person_id)->toBe(12)
-        ->and($result->transition->acted_by_position_id)->toBe(34)
+        ->and($result->transition->actor_id)->toBe($actor->id)
+        ->and($result->transition->actor_type)->toBe($actor->getMorphClass())
         ->and($result->transition->remarks)->toBe('Submitted for review')
         ->and($result->transition->metadata)->toBe(['channel' => 'portal']);
 

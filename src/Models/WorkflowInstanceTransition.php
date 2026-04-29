@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $to_workflow_instance_step_id
  * @property int $workflow_template_step_action_id
  * @property int $action_id
- * @property int|null $acted_by_person_id
- * @property int|null $acted_by_position_id
+ * @property string $actor_type
+ * @property int|string $actor_id
  * @property int|null $from_step_status_id
  * @property int|null $to_step_status_id
  * @property int|null $from_application_status_id
@@ -43,8 +43,8 @@ class WorkflowInstanceTransition extends Model
         'to_workflow_instance_step_id',
         'workflow_template_step_action_id',
         'action_id',
-        'acted_by_person_id',
-        'acted_by_position_id',
+        'actor_type',
+        'actor_id',
         'from_step_status_id',
         'to_step_status_id',
         'from_application_status_id',
@@ -102,6 +102,11 @@ class WorkflowInstanceTransition extends Model
     public function fromApplicationStatus(): BelongsTo
     {
         return $this->belongsTo(config('laraflow.models.status'), 'from_application_status_id');
+    }
+
+    public function actor(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function toApplicationStatus(): BelongsTo

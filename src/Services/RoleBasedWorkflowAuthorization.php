@@ -22,7 +22,7 @@ final class RoleBasedWorkflowAuthorization implements WorkflowAuthorization
             return false;
         }
 
-        return array_any($step->assignmentRoleNames, fn ($roleName) => $actor->hasRole($roleName));
+        return collect($step->assignmentRoleNames)->contains(fn ($roleName) => $actor->hasRole($roleName));
 
     }
 }
